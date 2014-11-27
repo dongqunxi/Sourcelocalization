@@ -248,7 +248,7 @@ def ROIs_standardlization(fname_stc):
                 src_pow = np.sum(stc_label.data ** 2, axis=1)
                 if label.hemi == 'lh':
                     seed_vertno = stc_label.vertno[0][np.argmax(src_pow)]#Get the max MNE value within each ROI
-                    func_label = mne.grow_labels(subject_id, seed_vertno, extents=10.0, 
+                    func_label = mne.grow_labels(subject_id, seed_vertno, extents=5.0, 
                                                 hemis=0, subjects_dir=subjects_dir, 
                                                 n_jobs=1)
                     func_label = func_label[0]
