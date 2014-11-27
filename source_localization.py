@@ -235,7 +235,7 @@ def ROIs_standardlization(fname_stc):
         name = os.path.basename(fn_stc)
         subject = name.split('_')[0]
         subject_path = subjects_dir + subject
-        sta_path = MNI_dir+'/func_labels/standard/'
+        sta_path = MNI_dir+'func_labels/standard/'
         isExists=os.path.exists(sta_path)
         if not isExists:
             os.makedirs(sta_path) 

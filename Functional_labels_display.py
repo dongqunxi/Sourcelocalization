@@ -3,17 +3,8 @@
 #######################################################################################
 import mne, os, sys
 from surfer import Brain
-import random
 
-try:
-    subject = sys.argv[1]
-except:
-    print "Please run with input file provided. Exiting"
-    sys.exit()
-
-subjects_dir = '/home/qdong/freesurfer/subjects/'
-subject_path = subjects_dir + subject#Set the data path of the subject
-#subject_id = subject
+labels_dir = '/home/qdong/freesurfer/subjects/fsaverage/func_labels/'
 subject_id = 'fsaverage'
 hemi = "split"
 #surf = "smoothwm"
@@ -21,23 +12,24 @@ surf = 'inflated'
 
 #label_fname='/home/qdong/freesurfer/subjects/101611/func_labels/new_func_temporal-lh.label'
 brain = Brain(subject_id, hemi, surf)
-list_dirs = os.walk(subject_path + '/func_labels/standard/') 
-#list_dirs = os.walk(subject_path + '/func_labels/') 
-#list_dirs = os.walk(subject_path + '/func_labels/merged')
-#list_dirs = os.walk(subjects_dir + subject) 
-#color = ['#990033', '#9900CC', '#FF6600', '#FF3333', '#00CC33']
-#/home/qdong/freesurfer/subjects/101611/func_labels/stim_func_superiortemporal-lh.label
-
+list_dirs = os.walk(labels_dir) 
 for root, dirs, files in list_dirs: 
     for f in files:
         label_fname = os.path.join(root, f) 
         label = mne.read_label(label_fname)
-        brain.add_label(label, color='red')
-        #if f[0:3]=='tri':
-        #   #continue
-        #    brain.add_label(label, color='green', alpha=0.5, subdir=root)
-        #elif f[0:3]=='res':
-        #    brain.add_label(label, color='yellow', alpha=0.5, subdir=root) 
+        #brain.add_label(label, color='red')
+        if f[0:6]=='101611':
+            brain.add_label(label, color='green', alpha=0.6)
+        elif f[0:6]=='108815':
+            brain.add_label(label, color='yellow', alpha=0.6) 
+        elif f[0:6]=='109925':
+            brain.add_label(label, color='blue', alpha=0.6)
+        elif f[0:6]=='110061':
+            brain.add_label(label, color='cyan', alpha=0.6)
+        elif f[0:6]=='201394':
+            brain.add_label(label, color='red', alpha=0.6)
+        elif f[0:6]=='202825':
+            brain.add_label(label, color='magenta', alpha=0.6)
         #else:
         #    brain.add_label(label, color='red',  subdir=root) 
 #mne.gui.coregistration()      
