@@ -112,15 +112,13 @@ def ROIs_definition(fname_stc, tri='STI 014'):
         i = 0
         while i < len(func_labels_lh):
             func_label = func_labels_lh[i]
-            if  func_label.vertices.shape[0] > 170:  #990 for 90%
-                func_label.save(subject_path+'/func_labels/%s' %(tri)+str(i))
+            func_label.save(subject_path+'/func_labels/%s' %(tri)+str(i))
             i = i + 1
         # right hemisphere definition      
         j = 0
         while j < len(func_labels_rh):
             func_label = func_labels_rh[j]
-            if  func_label.vertices.shape[0] > 170: 
-                func_label.save(subject_path+'/func_labels/%s' %(tri)+str(j))
+            func_label.save(subject_path+'/func_labels/%s' %(tri)+str(j))
             j = j + 1
         
 ###########################################################
@@ -236,9 +234,8 @@ def ROIs_standardlization(fname_stc):
         #extract the subject infromation from the file name
         name = os.path.basename(fn_stc)
         subject = name.split('_')[0]
-        
         subject_path = subjects_dir + subject
-        sta_path = subject_path+'/func_labels/standard/'
+        sta_path = MNI_dir+'/func_labels/standard/'
         isExists=os.path.exists(sta_path)
         if not isExists:
             os.makedirs(sta_path) 
@@ -255,12 +252,12 @@ def ROIs_standardlization(fname_stc):
                                                 hemis=0, subjects_dir=subjects_dir, 
                                                 n_jobs=1)
                     func_label = func_label[0]
-                    func_label.save(sta_path+'%s' %f)
+                    func_label.save(sta_path+'%s_%s' %(subject,f))
                 elif label.hemi == 'rh':
                     seed_vertno = stc_label.vertno[1][np.argmax(src_pow)]
-                    func_label = mne.grow_labels(subject_id, seed_vertno, extents=10.0, 
+                    func_label = mne.grow_labels(subject_id, seed_vertno, extents=5.0, 
                                                 hemis=1, subjects_dir=subjects_dir, 
                                                 n_jobs=1)
                     func_label = func_label[0]
-                    func_label.save(sta_path+'%s' %f)
+                    func_label.save(sta_path+'%s_%s' %(subject,f))
                     
