@@ -29,7 +29,8 @@ def make_inverse_operator(fname_evoked):
         subject = name.split('_')[0]
         
         fn_inv = fn_evoked.split('.fif')[0] + '-inv.fif'
-        fn_stc = fn_evoked.split('.fif')[0] + ',morph'
+        fn_stc = fn_evoked.split('.fif')[0] 
+        fn_morph = fn_evoked.split('.fif')[0] + ',morph'
         subject_path = subjects_dir + subject
         fn_cov = subject_path + '/MEG/%s,bp1-45Hz,empty-cov.fif' %subject
         fn_trans = subject_path + '/MEG/%s-trans.fif' %subject
@@ -59,9 +60,10 @@ def make_inverse_operator(fname_evoked):
         #vertices_to = mne.grade_to_vertices(subject_to, grade=5)
         #stcs['morph'] = mne.morph_data(subject, subject_to, stcs[subject], n_jobs=1,
         #                              grade=vertices_to)
+        stcs[subject].save(fn_stc)
         stcs['morph'] = mne.morph_data(subject, subject_id, stcs[subject], 4, smooth=4)
-        stcs['morph'].save(fn_stc)
-        fig_out = fn_stc + '.png'
+        stcs['morph'].save(fn_morph)
+        fig_out = fn_morph + '.png'
         plot_evoked_stc(subject,stcs, fig_out)
     
 import matplotlib.pyplot as plt
