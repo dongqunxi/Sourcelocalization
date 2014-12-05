@@ -16,7 +16,7 @@ def get_files_from_list(fin):
     
 subjects_dir = '/home/qdong/freesurfer/subjects/'
 MNI_dir = subjects_dir + 'fsaverage/'
-fn_inv = MNI_dir + '/bem/fsaverage-ico-4-src.fif' 
+fn_inv = MNI_dir + 'bem/fsaverage-ico-4-src.fif' 
 subject_id = 'fsaverage'
 def make_inverse_operator(fname_evoked):
     from mne.minimum_norm import (apply_inverse)
@@ -225,7 +225,7 @@ def ROIs_Merging(subject):
 # the preprocessed top strongest labels into a folder 'selected', and use
 # the following function to standardlize the size of them
 ####################################################################
-def ROIs_standardlization(fname_stc):
+def ROIs_standardlization(fname_stc, size=8.0):
     import mne,os
     import numpy as np
     fnlist = get_files_from_list(fname_stc)
@@ -250,14 +250,14 @@ def ROIs_standardlization(fname_stc):
                 src_pow = np.sum(stc_label.data ** 2, axis=1)
                 if label.hemi == 'lh':
                     seed_vertno = stc_label.vertno[0][np.argmax(src_pow)]#Get the max MNE value within each ROI
-                    func_label = mne.grow_labels(subject_id, seed_vertno, extents=5.0, 
+                    func_label = mne.grow_labels(subject_id, seed_vertno, extents=size, 
                                                 hemis=0, subjects_dir=subjects_dir, 
                                                 n_jobs=1)
                     func_label = func_label[0]
                     func_label.save(sta_path+'%s_%s' %(subject,f))
                 elif label.hemi == 'rh':
                     seed_vertno = stc_label.vertno[1][np.argmax(src_pow)]
-                    func_label = mne.grow_labels(subject_id, seed_vertno, extents=5.0, 
+                    func_label = mne.grow_labels(subject_id, seed_vertno, extents=size, 
                                                 hemis=1, subjects_dir=subjects_dir, 
                                                 n_jobs=1)
                     func_label = func_label[0]
