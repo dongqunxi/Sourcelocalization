@@ -16,7 +16,7 @@ def get_files_from_list(fin):
     
 subjects_dir = '/home/qdong/freesurfer/subjects/'
 MNI_dir = subjects_dir + 'fsaverage/'
-fn_inv = MNI_dir + '/bem/fsaverage-ico-4-src.fif' 
+fn_inv = MNI_dir + 'bem/fsaverage-ico-4-src.fif' 
 subject_id = 'fsaverage'
 def make_inverse_operator(fname_evoked):
     from mne.minimum_norm import (apply_inverse)
@@ -29,7 +29,8 @@ def make_inverse_operator(fname_evoked):
         subject = name.split('_')[0]
         
         fn_inv = fn_evoked.split('.fif')[0] + '-inv.fif'
-        fn_stc = fn_evoked.split('.fif')[0] + ',morph'
+        fn_stc = fn_evoked.split('.fif')[0] 
+        fn_morph = fn_evoked.split('.fif')[0] + ',morph'
         subject_path = subjects_dir + subject
         fn_cov = subject_path + '/MEG/%s,bp1-45Hz,empty-cov.fif' %subject
         fn_trans = subject_path + '/MEG/%s-trans.fif' %subject
@@ -59,9 +60,10 @@ def make_inverse_operator(fname_evoked):
         #vertices_to = mne.grade_to_vertices(subject_to, grade=5)
         #stcs['morph'] = mne.morph_data(subject, subject_to, stcs[subject], n_jobs=1,
         #                              grade=vertices_to)
+        stcs[subject].save(fn_stc)
         stcs['morph'] = mne.morph_data(subject, subject_id, stcs[subject], 4, smooth=4)
-        stcs['morph'].save(fn_stc)
-        fig_out = fn_stc + '.png'
+        stcs['morph'].save(fn_morph)
+        fig_out = fn_morph + '.png'
         plot_evoked_stc(subject,stcs, fig_out)
     
 import matplotlib.pyplot as plt
@@ -112,15 +114,13 @@ def ROIs_definition(fname_stc, tri='STI 014'):
         i = 0
         while i < len(func_labels_lh):
             func_label = func_labels_lh[i]
-            if  func_label.vertices.shape[0] > 170:  #990 for 90%
-                func_label.save(subject_path+'/func_labels/%s' %(tri)+str(i))
+            func_label.save(subject_path+'/func_labels/%s' %(tri)+str(i))
             i = i + 1
         # right hemisphere definition      
         j = 0
         while j < len(func_labels_rh):
             func_label = func_labels_rh[j]
-            if  func_label.vertices.shape[0] > 170: 
-                func_label.save(subject_path+'/func_labels/%s' %(tri)+str(j))
+            func_label.save(subject_path+'/func_labels/%s' %(tri)+str(j))
             j = j + 1
         
 ###########################################################
@@ -225,7 +225,7 @@ def ROIs_Merging(subject):
 # the preprocessed top strongest labels into a folder 'selected', and use
 # the following function to standardlize the size of them
 ####################################################################
-def ROIs_standardlization(fname_stc):
+def ROIs_standardlization(fname_stc, size=8.0):
     import mne,os
     import numpy as np
     fnlist = get_files_from_list(fname_stc)
@@ -236,9 +236,8 @@ def ROIs_standardlization(fname_stc):
         #extract the subject infromation from the file name
         name = os.path.basename(fn_stc)
         subject = name.split('_')[0]
-        
         subject_path = subjects_dir + subject
-        sta_path = subject_path+'/func_labels/standard/'
+        sta_path = MNI_dir+'func_labels/standard/'
         isExists=os.path.exists(sta_path)
         if not isExists:
             os.makedirs(sta_path) 
@@ -251,16 +250,16 @@ def ROIs_standardlization(fname_stc):
                 src_pow = np.sum(stc_label.data ** 2, axis=1)
                 if label.hemi == 'lh':
                     seed_vertno = stc_label.vertno[0][np.argmax(src_pow)]#Get the max MNE value within each ROI
-                    func_label = mne.grow_labels(subject_id, seed_vertno, extents=10.0, 
+                    func_label = mne.grow_labels(subject_id, seed_vertno, extents=size, 
                                                 hemis=0, subjects_dir=subjects_dir, 
                                                 n_jobs=1)
                     func_label = func_label[0]
-                    func_label.save(sta_path+'%s' %f)
+                    func_label.save(sta_path+'%s_%s' %(subject,f))
                 elif label.hemi == 'rh':
                     seed_vertno = stc_label.vertno[1][np.argmax(src_pow)]
-                    func_label = mne.grow_labels(subject_id, seed_vertno, extents=10.0, 
+                    func_label = mne.grow_labels(subject_id, seed_vertno, extents=size, 
                                                 hemis=1, subjects_dir=subjects_dir, 
                                                 n_jobs=1)
                     func_label = func_label[0]
-                    func_label.save(sta_path+'%s' %f)
+                    func_label.save(sta_path+'%s_%s' %(subject,f))
                     
