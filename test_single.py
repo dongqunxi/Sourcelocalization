@@ -1,5 +1,5 @@
 import jumeg
-import source_localization01
+import source_localization
    
 subject='108815'
 subjects_dir = '/home/qdong/freesurfer/subjects/'
@@ -87,27 +87,27 @@ jumeg.jumeg_preprocessing.apply_average(fn_both)
 fn_tri_evoked = basename + ',bp1-45Hz,ar,trigger,ctpsbr-raw,avg,trigger.fif'
 fn_res_evoked = basename + ',bp1-45Hz,ar,response,ctpsbr-raw,avg,response.fif'
 fn_both_evoked = basename + ',bp1-45Hz,ar,trigger,response,ctpsbr-raw,avg,trigger.fif'                                  
-source_localization01.make_inverse_operator(fname_evoked=fn_tri_evoked,)
-source_localization01.make_inverse_operator(fname_evoked=fn_res_evoked)
-source_localization01.make_inverse_operator(fname_evoked=fn_both_evoked)  
+source_localization.make_inverse_operator(fname_evoked=fn_tri_evoked,)
+source_localization.make_inverse_operator(fname_evoked=fn_res_evoked)
+source_localization.make_inverse_operator(fname_evoked=fn_both_evoked)  
                                            
 ##################################################                                                                                 
 # ROIs_definition                               #  
 #################################################
 fn_stc_tri = basename + ',bp1-45Hz,ar,trigger,ctpsbr-raw,avg,trigger,morph'
 fn_stc_res = basename + ',bp1-45Hz,ar,response,ctpsbr-raw,avg,response,morph'
-source_localization01.ROIs_definition(fn_stc_tri, tri=tri_name)
-source_localization01.ROIs_definition(fn_stc_res, tri=res_name)
+source_localization.ROIs_definition(fn_stc_tri, tri=tri_name)
+source_localization.ROIs_definition(fn_stc_res, tri=res_name)
 #Merging the overlapped labels and standardlize the size of them
-source_localization01.ROIs_Merging(subject)
+source_localization.ROIs_Merging(subject)
 fn_stc_both = basename + ',bp1-45Hz,ar,trigger,response,ctpsbr-raw,avg,trigger,morph' 
-source_localization01.ROIs_standardlization(fn_stc_both)
+source_localization.ROIs_standardlization(fn_stc_both)
 
 ##################################################                                                                                 
 # ROIs_selection                                 #  
 #################################################
-#source_localization01.ROIs_selection(fn_stc_tri, tri=tri_name)
-#source_localization01.ROIs_selection(fn_stc_res, tri=res_name)
+#source_localization.ROIs_selection(fn_stc_tri, tri=tri_name)
+#source_localization.ROIs_selection(fn_stc_res, tri=res_name)
 
 
 

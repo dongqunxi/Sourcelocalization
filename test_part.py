@@ -20,7 +20,7 @@ for subject in ['101611','110061','109925', '201394', '202825', '108815']:
     ##Merging the overlapped labels and standardlize the size of them
     #source_localization.ROIs_Merging(subject)
     fn_stc_both = basename + ',bp1-45Hz,ar,trigger,response,ctpsbr-raw,avg,trigger,morph' 
-    source_localization.ROIs_standardlization(fn_stc_both)
+    source_localization.ROIs_standardlization(fn_stc_both, size=8.0)
 
 import os,mne
 import numpy as np
