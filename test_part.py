@@ -20,100 +20,54 @@ for subject in ['101611','110061','109925', '201394', '202825', '108815']:
     ##Merging the overlapped labels and standardlize the size of them
     #source_localization.ROIs_Merging(subject)
     fn_stc_both = basename + ',bp1-45Hz,ar,trigger,response,ctpsbr-raw,avg,trigger,morph' 
-    source_localization.ROIs_standardlization(fn_stc_both, size=8.0)
+    source_localization.ROIs_standardlization(fn_stc_both, size=8)
 
-import os,mne
+source_localization.group_ROI()
+source_localization.com_ROI(5)
+
+import mne, os
 import numpy as np
-subjects_dir = '/home/qdong/freesurfer/subjects/'
-subject_path = subjects_dir + 'fsaverage'
-list_dirs = os.walk(subject_path + '/func_labels/standard/')
-label_list = ['']
-for root, dirs, files in list_dirs: 
-    for f in files:
-        label_fname = os.path.join(root, f) 
-        label_list.append(label_fname)
-label_list=label_list[1:]
-mer_path = subject_path+'/func_labels/merged/'
-isExists=os.path.exists(mer_path)
-if not isExists:
-    os.makedirs(mer_path) 
-
-l_label = len(label_list)
-#i=0
-#j=l_label - 1
-#while i <= l_label-1:
-#    label1 = mne.read_label(label_list[i])
-#    com_label = label1.copy()
-#    while j >= 0:
-#        label2 = mne.read_label(label_list[j]) 
-#        j = j - 1
-#        if label1.hemi != label2.hemi:
-#            continue
-#        if len(np.intersect1d(label1.vertices, label2.vertices)) > 0:
-#            com_label = label1 + label2
-#            com_label.name = '%s,' %(label2.name.split('_')[0]) + com_label.name 
-#            
-#    subjects = (label1.name.split('_')[0]).split(',')
-#    if len(set(subjects)) >= 4:          
-#        mne.write_label(mer_path + '%s' %com_label.name, com_label)
-#    i = i + 1
-
-for fn_label1 in label_list:
-    label1 = mne.read_label(fn_label1) 
-    com_label = label1.copy()
-    label_name = label1.name
-    for fn_label2 in label_list:
-        label2 = mne.read_label(fn_label2) 
-        if label1.hemi != label2.hemi:
-            continue
-        if len(np.intersect1d(label1.vertices, label2.vertices)) > 0:
-            com_label = label1 + label2
-            if label2.name.split('_')[0] not in label_name:
-                label_name = '%s,' %(label2.name.split('_')[0]) + label_name
-    subjects = (label_name.split('_')[0]).split(',')
-    if len(set(subjects)) >= 4:          
-        mne.write_label(mer_path + '%s'  %label_name, com_label)
-   # mne.write_label(mer_path + '%s' %label1.name, com_label)
-
+mer_path='/home/qdong/freesurfer/subjects/fsaverage/func_labels/merged'
 list_dirs = os.walk(mer_path)
 label_list = ['']
 for root, dirs, files in list_dirs: 
     for f in files:
         label_fname = os.path.join(root, f) 
         label_list.append(label_fname)
-label_list=label_list[1:]
-com_path = subject_path+'/func_labels/common/'
-isExists=os.path.exists(com_path)
-if not isExists:
-    os.makedirs(com_path) 
-
-
-
-            
-            
-    subjects = (label1.name.split('_')[0]).split(',')
-    if len(set(subjects)) >= 4:          
-        mne.write_label(mer_path + '%s' %com_label.name, com_label)
-    i = i + 1
-#i=0
-#j=l_label - 1
-#while i <= l_label-1:
-#    label1 = mne.read_label(label_list[i])
-#    com_label = label1.copy()
-#    while j >= 0:
-#        label2 = mne.read_label(label_list[j]) 
-#        j = j - 1
-#        if label1.hemi != label2.hemi:
-#            continue
-#        if len(np.intersect1d(label1.vertices, label2.vertices)) > 0:
-#            #com_label = label1 + label2
-#            #pre1 = label1.name.split('_')[0].split(',')
-#            #pre2 = label2.name.split('_')[0].split(',')
-#            #pre = pre1 + pre2
-#            #pre = list(set(pre))
-#            #com_name = pre[0]
-#            #for sub in pre[1:]:
-#            #    com_name += ',%s' %sub
-#            #label_name = '%s_' %com_name + label1.name.split('_')[1]
-#    mne.write_label(com_path + '%s'  %label_name, com_label)
-#    i = i + 1
+label_list = label_list[1:]
+class_list = []
+class_list.append(label_list[0]) 
+for test_fn in label_list[1:]:
+    test_label = mne.read_label(test_fn)
+    i = 0
+    belong = False
+    while (i < len(class_list)) and (belong == False):
+        class_label = mne.read_label(class_list[i])
+        label_name = class_label.name
+        if test_label.hemi != class_label.hemi:
+            i = i + 1
+            continue
+        if len(np.intersect1d(test_label.vertices, class_label.vertices)) > 0:
+            com_label = test_label + class_label
+            pre_test = test_label.name.split('_')[0]
+            pre_class = class_label.name.split('_')[0]
+            if pre_test != pre_class:
+                pre_class += ',%s' %pre_test
+                pre_class = list(set(pre_class.split(',')))
+                new_pre = ''
+                for pre in pre_class[:-1]:
+                    new_pre += '%s,' %pre
+                new_pre += pre_class[-1]
+                label_name = '%s_' %new_pre + class_label.name.split('_')[1]
+            if os.path.dirname(class_list[i]) == mer_path:
+                os.remove(class_list[i])
+            if os.path.dirname(test_fn) == mer_path:
+                os.remove(test_fn)
+            mne.write_label(mer_path + '/%s.label' %label_name, com_label)
+            print label_name
+            class_list[i] = mer_path + '/%s.label' %label_name 
+            belong = True
+        i = i + 1
+    if belong == False:
+        class_list.append(test_fn)
+print len(class_list), len(label_list)

@@ -132,5 +132,14 @@ jumeg.jumeg_preprocessing.apply_ctps(fn_ica2_unfilt, tmin=tmin, tmax=tmax,
                                                  name_stim=res_name)
 jumeg.jumeg_preprocessing.apply_ctps_select_ic(fname_ctps=fn_ctps_res_unfilt) 
 #recompose interest components
-jumeg.jumeg_preprocessing.apply_ica_select_brain_response(fn_ics_tri_unfilt, 
-                                                n_pca_components=0.95) 
+conditions=['trigger', 'response']                
+jumeg.jumeg_preprocessing.apply_ica_select_brain_response(fn_clean_unfilt, 
+                                conditions=conditions, n_pca_components=0.95) 
+
+################################################################################
+# morph the unfiltered and insterest Raw data into the common brain space
+###############################################################################
+fn_unfilt = basename + ',ar,trigger,response,ctpsbr-raw.fif'
+jumeg.jumeg_preprocessing.apply_create_noise_covariance(fn_empty_room, 
+                                                     require_filter=False)
+source_localization.make_inverse_epochs(fn_unfilt)

@@ -34,3 +34,6 @@ for root, dirs, files in list_dirs:
         #else:
         #    brain.add_label(label, color='red',  subdir=root) 
 #mne.gui.coregistration()      
+label_fname = os.path.join(root, files[1]) 
+label = mne.read_label(label_fname)
+brain.add_label(label, color='red')
