@@ -88,7 +88,7 @@ def compute_order(X, p_max):
     Y = X.T
 
     for p in range(1, p_max + 1):
-        #print p
+        print p
         A, sigma = mvar_fit(X, p)
         A_2d = np.concatenate(A, axis=1)
 
