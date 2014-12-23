@@ -87,8 +87,8 @@ def plot_evoked_stc(subject, stcs,fig_out):
     
 
 
-def ROIs_definition(fname_stc, tri='STI 014'):
-    import mne, os
+def ROIs_definition(fname_stc, tri='STI 014', thr=99):
+    import mne, os, shutil
     import numpy as np
     fnlist = get_files_from_list(fname_stc)
     # loop across all filenames
@@ -96,15 +96,15 @@ def ROIs_definition(fname_stc, tri='STI 014'):
         #extract the subject infromation from the file name
         name = os.path.basename(fn_stc)
         subject = name.split('_')[0]
-        
         subject_path = subjects_dir + subject
+        fun_path = subject_path+'/func_labels/'
         src_inv = mne.read_source_spaces(fn_inv, add_geom=True) 
         if tri == 'STI 014':
             #stc_thr = 85 
-            stc_thr = 95
+            stc_thr = thr
             tri = 'tri'
         elif tri == 'STI 013':
-            stc_thr = 95
+            stc_thr = thr
             tri = 'res'
         stc_morph = mne.read_source_estimate(fn_stc, subject=subject_id)
         src_pow = np.sum(stc_morph.data ** 2, axis=1)
@@ -115,20 +115,20 @@ def ROIs_definition(fname_stc, tri='STI 014'):
         i = 0
         while i < len(func_labels_lh):
             func_label = func_labels_lh[i]
-            func_label.save(subject_path+'/func_labels/%s' %(tri)+str(i))
+            func_label.save(fun_path+'%s' %(tri)+str(i))
             i = i + 1
         # right hemisphere definition      
         j = 0
         while j < len(func_labels_rh):
             func_label = func_labels_rh[j]
-            func_label.save(subject_path+'/func_labels/%s' %(tri)+str(j))
+            func_label.save(subject_path+'%s' %(tri)+str(j))
             j = j + 1
                 
 ###################################################################################
 #  Merge overlaped ROIs
 ###################################################################################
 def ROIs_Merging(subject):
-    import os,mne
+    import os,mne,shutil
     import numpy as np
     subject_path = subjects_dir + subject
     list_dirs = os.walk(subject_path + '/func_labels/')
@@ -150,8 +150,9 @@ def ROIs_Merging(subject):
     
     mer_path = subject_path+'/func_labels/merged/'
     isExists=os.path.exists(mer_path)
-    if not isExists:
-        os.makedirs(mer_path) 
+    if isExists:
+        shutil.rmtree(mer_path)
+    os.makedirs(mer_path) 
         
     com_list=['']        
     for fn_tri in tri_list:
@@ -177,7 +178,7 @@ def ROIs_Merging(subject):
 # For the special subject, to standardize the size of ROIs
 ####################################################################
 def ROIs_standardlization(fname_stc, size=8.0):
-    import mne,os
+    import mne,os,shutil
     import numpy as np
     fnlist = get_files_from_list(fname_stc)
     # loop across all filenames
@@ -189,9 +190,6 @@ def ROIs_standardlization(fname_stc, size=8.0):
         subject = name.split('_')[0]
         subject_path = subjects_dir + subject
         sta_path = MNI_dir+'func_labels/standard/'
-        isExists=os.path.exists(sta_path)
-        if not isExists:
-           os.makedirs(sta_path) 
         list_dirs = os.walk(subject_path + '/func_labels/merged/') 
         for root, dirs, files in list_dirs: 
             for f in files:
@@ -262,7 +260,6 @@ def cluster_ROI(mer_path, label_list):
 def group_ROI():
     import os, shutil
     import numpy as np
-    subjects_dir = '/home/qdong/freesurfer/subjects/'
     subject_path = subjects_dir + 'fsaverage'
     
     #Merge the individual subject's ROIs
@@ -303,7 +300,6 @@ def group_ROI():
 def com_ROI(am_sub):
 #Select the ROIs more than am_sub subjects        
     import shutil, os
-    subjects_dir = '/home/qdong/freesurfer/subjects/'
     subject_path = subjects_dir + 'fsaverage'
     com_path = subject_path+'/func_labels/common/'
     mer_path = subject_path+'/func_labels/merged/'
@@ -386,10 +382,10 @@ def make_inverse_epochs(fname_raw):
 # 3) make the significant threshold
 # 4）get the effective connectivities
 ##################################################################
-def causal_analysis(subject):
+def causal_analysis(subject,top_c=8):
     import numpy as np
     import mne, sys, os
-    subjects_dir = '/home/qdong/freesurfer/subjects/'
+
     subject_path = subjects_dir + 'fsaverage'
     stcs_path = subject_path + '/stcs/%s/' %subject
     inv_path = subject_path + '/bem/fsaverage-ico-4-src.fif'
@@ -423,26 +419,26 @@ def causal_analysis(subject):
     from scot.backend_sklearn import VAR
     import scot.plotting as splt
     from scipy import linalg
-    import math
+    import heapq
     import matplotlib.pylab as plt
     import make_model_order
     # rearrange data to fit scot's format
     label_ts = np.asarray(label_ts).transpose(2, 1, 0)
-    label_or = np.mean(label_ts, -1)
-    label_or = label_or.T
-    mu = np.mean(label_or, axis=1)
-    label_or = label_or - mu[:, None]
-    p, bic = make_model_order.compute_order(label_or, p_max=20)
-    mvar = VAR(p)
+    #label_or = np.mean(label_ts, -1)
+    #label_or = label_or.T
+    #mu = np.mean(label_or, axis=1)
+    #label_or = label_or - mu[:, None]
+    #p, bic = make_model_order.compute_order(label_or, p_max=20)
+    mvar = VAR(6)
     
     # generate connectivity surrogates under the null-hypothesis of no connectivity
-    c_surrogates = scs.surrogate_connectivity('sPDC', label_ts, mvar, repeats=1000)
+    c_surrogates = scs.surrogate_connectivity('dDTF', label_ts, mvar, repeats=1000)
     c0 = np.percentile(c_surrogates, 99, axis=0)
     sfreq = 1017.25 
-    freqs=[(4, 7), (6, 9), (8, 12), (11, 15), (14, 20)]
+    freqs=[(4, 7), (6, 9), (8, 12), (11, 15), (14, 20),(19, 30)]
     nfreq = len(freqs)
     mvar.fit(label_ts)
-    con = connectivity('sPDC', mvar.coef, mvar.rescov)
+    con = connectivity('dDTF', mvar.coef, mvar.rescov)
     con_dif = con - c0
 
     for ifreq in range(nfreq):             
@@ -454,10 +450,12 @@ def causal_analysis(subject):
         con_band = np.mean(con_dif[:, :, fmin:fmax], axis=-1)
         np.fill_diagonal(con_band, 0)#ignore the dignoal values
         con_band[con_band<0] = 0#ignore the value less than significance
+        sig_thr = heapq.nlargest(top_c,con_band.flatten())[-1]#get the top top_c largest significance CA
+        con_band[con_band > sig_thr] = con_band.max()
         plt.imshow(con_band, interpolation='nearest', cmap=plt.cm.gray)
-        v = np.linspace(0.0, 0.2, 10, endpoint=True)
+        v = np.linspace(0.0, con_band.max(), 10, endpoint=True)
         plt.colorbar(ticks=v)
         #plt.colorbar()
         plt.show()
-        plt.savefig(stcs_path+'sPDC_%s_%s.png' %(str(fmin),str(fmax)), dpi=100)
+        plt.savefig(stcs_path+'dDTF_%s_%s.png' %(str(fmin),str(fmax)), dpi=100)
         plt.close()
