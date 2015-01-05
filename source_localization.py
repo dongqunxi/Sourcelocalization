@@ -88,7 +88,7 @@ def plot_evoked_stc(subject, stcs,fig_out):
 
 
 def ROIs_definition(fname_stc, tri='STI 014', thr=99):
-    import mne, os, shutil
+    import mne, os
     import numpy as np
     fnlist = get_files_from_list(fname_stc)
     # loop across all filenames
@@ -295,7 +295,7 @@ def group_ROI():
                 label_fname = os.path.join(root, f) 
                 label_list.append(label_fname)
         label_list = label_list[1:]
-        print len_class, len(label_list)
+        #print len_class, len(label_list)
         
 def com_ROI(am_sub):
 #Select the ROIs more than am_sub subjects        
@@ -424,13 +424,13 @@ def causal_analysis(subject,top_c=8):
     import make_model_order
     # rearrange data to fit scot's format
     label_ts = np.asarray(label_ts).transpose(2, 1, 0)
-    #label_or = np.mean(label_ts, -1)
-    #label_or = label_or.T
-    #mu = np.mean(label_or, axis=1)
-    #label_or = label_or - mu[:, None]
-    #p, bic = make_model_order.compute_order(label_or, p_max=20)
-    mvar = VAR(6)
-    
+    label_or = np.mean(label_ts, -1)
+    label_or = label_or.T
+    mu = np.mean(label_or, axis=1)
+    label_or = label_or - mu[:, None]
+    p, bic = make_model_order.compute_order(label_or, p_max=20)
+    #mvar = VAR(6)
+    mvar = VAR(p)
     # generate connectivity surrogates under the null-hypothesis of no connectivity
     c_surrogates = scs.surrogate_connectivity('dDTF', label_ts, mvar, repeats=1000)
     c0 = np.percentile(c_surrogates, 99, axis=0)

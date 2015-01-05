@@ -15,17 +15,17 @@ for subject in ['110061','109925', '201394', '202825','101611','108815']:
     raw_fname = subject_path + '/MEG/%s_audi_cued-raw.fif' %subject
     basename = raw_fname.split('-')[0]
     res_name, tri_name = 'STI 013', 'STI 014'
-    #make filtered and morphed STCs
-    #fn_tri_evoked = basename + ',bp1-45Hz,ar,trigger,ctpsbr-raw,avg,trigger.fif'
-    #fn_res_evoked = basename + ',bp1-45Hz,ar,response,ctpsbr-raw,avg,response.fif'
-    #fn_both_evoked = basename + ',bp1-45Hz,ar,trigger,response,ctpsbr-raw,avg,trigger.fif'                                  
-    #source_localization.make_inverse_operator(fname_evoked=fn_tri_evoked,)
-    #source_localization.make_inverse_operator(fname_evoked=fn_res_evoked)
-    #source_localization.make_inverse_operator(fname_evoked=fn_both_evoked) 
-   
-    ##################################################                                                                                 
-    # ROIs_definition                               #  
-    #################################################
+   # #make filtered and morphed STCs
+   # #fn_tri_evoked = basename + ',bp1-45Hz,ar,trigger,ctpsbr-raw,avg,trigger.fif'
+   # #fn_res_evoked = basename + ',bp1-45Hz,ar,response,ctpsbr-raw,avg,response.fif'
+   # #fn_both_evoked = basename + ',bp1-45Hz,ar,trigger,response,ctpsbr-raw,avg,trigger.fif'                                  
+   # #source_localization.make_inverse_operator(fname_evoked=fn_tri_evoked,)
+   # #source_localization.make_inverse_operator(fname_evoked=fn_res_evoked)
+   # #source_localization.make_inverse_operator(fname_evoked=fn_both_evoked) 
+   #
+   # ##################################################                                                                                 
+   # # ROIs_definition                               #  
+   # #################################################
     fn_stc_tri = basename + ',bp1-45Hz,ar,trigger,ctpsbr-raw,avg,trigger,morph'
     fn_stc_res = basename + ',bp1-45Hz,ar,response,ctpsbr-raw,avg,response,morph'
     fun_path = subject_path+'/func_labels/'
@@ -33,8 +33,8 @@ for subject in ['110061','109925', '201394', '202825','101611','108815']:
     if isExists:
         shutil.rmtree(fun_path)
     os.makedirs(fun_path) 
-    source_localization.ROIs_definition(fn_stc_tri, tri=tri_name)
-    source_localization.ROIs_definition(fn_stc_res, tri=res_name)                                    
+    source_localization.ROIs_definition(fn_stc_tri, tri=tri_name,thr=97)
+    source_localization.ROIs_definition(fn_stc_res, tri=res_name,thr=97)                                    
     #Merging the overlapped labels and standardlize the size of them
     source_localization.ROIs_Merging(subject)
     fn_stc_both = basename + ',bp1-45Hz,ar,trigger,response,ctpsbr-raw,avg,trigger,morph' 

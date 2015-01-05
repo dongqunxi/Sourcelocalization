@@ -38,7 +38,7 @@ import make_model_order
 # rearrange data to fit scot's format
 label_ts = np.asarray(label_ts).transpose(2, 1, 0)
 label_cau = label_ts - label_ts.mean(axis=2, keepdims=True)
-label_or = np.mean(label_ts, -1)
+label_or = np.mean(label_ts, -1,keepdims=True)
 label_or = label_or.T
 mu = np.mean(label_or, axis=1)
 label_or = label_or - mu[:, None]
