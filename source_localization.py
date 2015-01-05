@@ -121,7 +121,7 @@ def ROIs_definition(fname_stc, tri='STI 014', thr=99):
         j = 0
         while j < len(func_labels_rh):
             func_label = func_labels_rh[j]
-            func_label.save(subject_path+'%s' %(tri)+str(j))
+            func_label.save(fun_path+'%s' %(tri)+str(j))
             j = j + 1
                 
 ###################################################################################

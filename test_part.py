@@ -9,14 +9,19 @@ isExists=os.path.exists(sta_path)
 if isExists:
     shutil.rmtree(sta_path)
 os.makedirs(sta_path) 
-for subject in ['110061','109925', '201394', '202825']:
+for subject in ['110061','109925', '201394', '202825','101611','108815']:
     #subject='110061'
     subject_path = subjects_dir + subject#Set the data path of the subject
     raw_fname = subject_path + '/MEG/%s_audi_cued-raw.fif' %subject
     basename = raw_fname.split('-')[0]
     res_name, tri_name = 'STI 013', 'STI 014'
-    #basename='/home/qdong/freesurfer/subjects/108815/MEG/108815_audi_cued'
-    
+    #make filtered and morphed STCs
+    #fn_tri_evoked = basename + ',bp1-45Hz,ar,trigger,ctpsbr-raw,avg,trigger.fif'
+    #fn_res_evoked = basename + ',bp1-45Hz,ar,response,ctpsbr-raw,avg,response.fif'
+    #fn_both_evoked = basename + ',bp1-45Hz,ar,trigger,response,ctpsbr-raw,avg,trigger.fif'                                  
+    #source_localization.make_inverse_operator(fname_evoked=fn_tri_evoked,)
+    #source_localization.make_inverse_operator(fname_evoked=fn_res_evoked)
+    #source_localization.make_inverse_operator(fname_evoked=fn_both_evoked) 
    
     ##################################################                                                                                 
     # ROIs_definition                               #  
@@ -41,7 +46,7 @@ source_localization.causal_analysis('108815')
 
 import source_localization, jumeg
 subjects_dir = '/home/qdong/freesurfer/subjects/'
-for subject in ['101611','110061','109925', '201394', '202825', '108815']:
+for subject in ['101611','110061','109925', '201394', '202825']:
     #subject_path = subjects_dir + subject#Set the data path of the subject
     #raw_fname = subject_path + '/MEG/%s_audi_cued-raw.fif' %subject
     #basename = raw_fname.split('-')[0]
